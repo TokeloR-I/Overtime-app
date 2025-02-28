@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Hours Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            max-width: 600px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Work Hours Calculator</h1>
+    <label for="startTime">Start Time (HH:MM):</label>
+    <input type="time" id="startTime" required>
+
+    <label for="endTime">End Time (HH:MM):</label>
+    <input type="time" id="endTime" required>
+
+    <label for="unpaidBreak">Unpaid Break (minutes):</label>
+    <input type="number" id="unpaidBreak" value="45" required>
+
+    <label for="overtime">Overtime Hours (e.g., 2.96):</label>
+    <input type="number" id="overtime" step="0.01" required>
+
+    <button onclick="calculateHours()">Calculate</button>
+
+    <div id="result"></div>
+
+    <script>
+        function calculateHours() {
+            // Get input values
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            const unpaidBreak = parseFloat(document.getElementById('unpaidBreak').value);
+            const overtime = parseFloat(document.getElementById('overtime').value);
+
+            if (!startTime || !endTime || isNaN(unpaidBreak) || isNaN(overtime)) {
+                document.getElementById('result').textContent = 'Please fill in all fields correctly.';
+                return;
+            }
+
+            // Convert times to minutes
+            const [startHours, startMinutes] = startTime.split(':').map(Number);
+            const [endHours, endMinutes] = endTime.split(':').map(Number);
+
+            const startTotalMinutes = startHours * 60 + startMinutes;
+            const endTotalMinutes = endHours * 60 + endMinutes;
+
+            // Calculate total worked minutes
+            let workedMinutes = endTotalMinutes - startTotalMinutes;
+
+            // Subtract unpaid break
+            workedMinutes -= unpaidBreak;
+
+            // Convert to hours
+            const workedHours = workedMinutes / 60;
+
+            // Calculate required hours and remaining overtime
+            const requiredHours = 8;
+            const shortfall = requiredHours - workedHours;
+            const remainingOvertime = overtime - shortfall;
+
+            // Display result
+            let resultText = `Net worked hours: ${workedHours.toFixed(2)} hours\n`;
+
+            if (shortfall > 0) {
+                resultText += `You are ${shortfall.toFixed(2)} hours short.\n`;
+            } else {
+                resultText += `You have completed your required hours.\n`;
+            }
+
+            resultText += `Remaining overtime balance: ${remainingOvertime.toFixed(2)} hours.`;
+
+            document.getElementById('result').textContent = resultText;
+        }
+    </script>
+</body>
+</html>
