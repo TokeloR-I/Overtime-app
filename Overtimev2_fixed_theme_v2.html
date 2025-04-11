@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FlexTime - Dashboard Centered</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: linear-gradient(135deg, #202340, #3e7cb1);
+      --text: #fff;
+      --card: rgba(255,255,255,0.05);
+    }
+    body.dark {
+      --bg: linear-gradient(135deg, #f1f4f8, #e1e7ec);
+      --text: #111;
+      --card: rgba(0,0,0,0.05);
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+    header {
+      text-align: center;
+      padding: 40px 20px;
+      background: linear-gradient(135deg, #3e7cb1, #6b00b6);
+      color: white;
+    }
+    header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+    .main {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+      position: relative;
+      z-index: 2;
+      flex-wrap: wrap;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 20px;
+      width: 300px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .card.center {
+      width: 400px;
+    }
+    .card h2 {
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+    }
+    .toggle-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #ffcc00;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      z-index: 3;
+    }
+    input, select {
+      width: 385px;
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      margin-top: 6px;
+      margin-bottom: 10px;
+    }
+    .flex-calc {
+      display: flex;
+      flex-direction: column;
+    }
+    button {
+      width: 400px;
+      padding: 10px;
+      background: #ffcc00;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    #bubbleCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+    #result {
+      margin-top: 10px;
+      background: rgba(255,255,255,0.1);
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+    }
+  
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.theme-toggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 3;
+}
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: #ccc;
+  border-radius: 34px;
+  top: 0; left: 0; right: 0; bottom: 0;
+  transition: 0.4s;
+}
+.slider:before {
+  content: "☀️";
+  position: absolute;
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  color: black;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 26px;
+  transition: 0.4s;
+  font-size: 14px;
+}
+input:checked + .slider {
+  background-color: #a54dff;
+}
+input:checked + .slider:before {
+  transform: translateX(26px);
+  content: "🌙";
+}
+
+</style>
+</head>
+<body>
+  <div class="theme-toggle">
+  <label class="switch">
+    <input type="checkbox" id="themeSwitch" onchange="toggleDarkModeSwitch()">
+    <span class="slider"></span>
+  </label>
+</div>
+  <canvas id="bubbleCanvas"></canvas>
+
+  <header>
+    <h1>🧘 Master Trainer Time Dashboard</h1>
+    <p>Time tracking made simple</p>
+  </header>
+
+  <div class="main">
+    <div class="card">
+      <h2>🎲 Fun Fact</h2>
+      <p id="funFact">Loading...</p>
+    </div>
+
+    <div class="card center">
+      <h2>⏱️ FlexTime Calculator</h2>
+      <div class="flex-calc">
+        <label style="display: flex; align-items: center;"><input type="checkbox" id="flexMode" onchange="toggleFlexMode()"> Flex Mode (no end time)</label>
+        <label>Start Time:</label>
+        <input type="time" id="startTime">
+        <div id="endTimeGroup">
+          <label>End Time:</label>
+          <input type="time" id="endTime">
+        </div>
+        <label>Overtime (hours):</label>
+        <input type="number" id="overtime" step="0.01">
+                <button onclick="calculateHours()">Calculate</button>
+        <div id="result">Your result will appear here.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🌦️ Weather</h2>
+      <p id="weather">Fetching weather...</p>
+    </div>
+  </div>
+
+  <script>
+    function toggleFlexMode() {
+      const checked = document.getElementById("flexMode").checked;
+      document.getElementById("endTimeGroup").style.display = checked ? "none" : "block";
+    }
+
+    function calculateHours() {
+      const start = document.getElementById('startTime').value;
+      const overtime = parseFloat(document.getElementById('overtime').value) || 0;
+      const pause = 0;
+      const flexMode = document.getElementById('flexMode').checked;
+      const resultBox = document.getElementById('result');
+
+      if (!start || isNaN(overtime)) {
+        resultBox.textContent = "Please enter start time and overtime.";
+        return;
+      }
+
+      const [startH, startM] = start.split(":").map(Number);
+      const startDate = new Date();
+      startDate.setHours(startH, startM, 0, 0);
+
+      if (flexMode) {
+        const totalMinutes = 8 * 60 + 45 - (overtime * 60);
+        const leaveDate = new Date(startDate.getTime() + totalMinutes * 60000);
+        const h = String(leaveDate.getHours()).padStart(2, '0');
+        const m = String(leaveDate.getMinutes()).padStart(2, '0');
+        resultBox.textContent = `✅ Leave at: ${h}:${m} with ${overtime}h of overtime.`;
+      } else {
+        const end = document.getElementById('endTime').value;
+        if (!end) {
+          resultBox.textContent = "Please enter end time.";
+          return;
+        }
+        const [endH, endM] = end.split(":").map(Number);
+        const endDate = new Date();
+        endDate.setHours(endH, endM, 0, 0);
+        let workedMinutes = (endDate - startDate) / 60000 - 45 - pause;
+        let workedHours = workedMinutes / 60;
+        let shortfall = 8 - workedHours;
+        let remainingOvertime = overtime - shortfall;
+
+        let text = `🕒 Worked: ${workedHours.toFixed(2)} hours
+`;
+        if (shortfall > 0) {
+          text += `⚠️ Short by: ${shortfall.toFixed(2)} hours
+`;
+        } else {
+          text += `✅ Required hours complete!
+`;
+        }
+        text += `💼 Overtime left: ${remainingOvertime.toFixed(2)} hours`;
+        resultBox.textContent = text;
+      }
+    }
+
+    function getRandomFact() {
+      const facts = [
+        "Octopuses have 3 hearts.",
+        "You can't hum while holding your nose.",
+        "Honey never spoils — even after 3000 years.",
+        "A day on Venus is longer than a year.",
+        "Scotland’s national animal is the unicorn."
+      ];
+      document.getElementById('funFact').textContent = facts[Math.floor(Math.random() * facts.length)];
+    }
+
+    function getWeather() {
+      fetch('https://wttr.in/?format=%l:+%C+%t')
+        .then(res => res.text())
+        .then(data => document.getElementById("weather").textContent = data)
+        .catch(() => document.getElementById("weather").textContent = "⚠️ Unable to fetch weather");
+    }
+
+    getRandomFact();
+    getWeather();
+
+    const canvas = document.getElementById("bubbleCanvas");
+    const ctx = canvas.getContext("2d");
+    let mouseX = 0, mouseY = 0;
+
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    window.addEventListener("mousemove", e => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+
+    class Bubble {
+      constructor() {
+        this.x = Math.random() * window.innerWidth;
+        this.y = Math.random() * window.innerHeight;
+        this.radius = 80 + Math.random() * 40;
+        this.speedX = (Math.random() - 0.5) * 0.3;
+        this.speedY = (Math.random() - 0.5) * 0.3;
+      }
+      move() {
+        this.x += this.speedX + (mouseX - this.x) * 0.0002;
+        this.y += this.speedY + (mouseY - this.y) * 0.0002;
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        const grad = ctx.createRadialGradient(this.x, this.y, this.radius * 0.3, this.x, this.y, this.radius);
+        grad.addColorStop(0, 'rgba(255, 255, 255, 0.35)');
+        grad.addColorStop(1, 'rgba(255, 255, 255, 0.05)');
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
+    }
+
+    const bubbles = Array.from({ length: 4 }, () => new Bubble());
+
+    function animateBubbles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let b of bubbles) {
+        b.move();
+        b.draw();
+      }
+      requestAnimationFrame(animateBubbles);
+    }
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    animateBubbles();
+  
+function toggleDarkModeSwitch() {
+  document.body.classList.toggle('dark');
+}
+</script>
+
+</body>
+</html>
