@@ -8,183 +8,224 @@
  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"></noscript>
  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
  <style>
-   :root {
-    --bg: #f4f6fb;
-    --text: #333;
-    --card-bg: white;
-    --sidebar-bg: white;
-    --shadow: rgba(0,0,0,0.08);
-    --primary-color: #3e7cb1;
-    --secondary-color: #6c757d;
-    --success-color: #28a745;
-    --danger-color: #dc3545;
-    --accent-color: #ff9900;
-    --border-radius: 12px;
-   }
-   body.dark {
-    --bg: #1e202a;
-    --text: #e0e6f1;
-    --card-bg: #2b2f3d;
-    --sidebar-bg: #2b2f3d;
-    --shadow: rgba(0,0,0,0.3);
-    --primary-color: #4da6ff;
-    --secondary-color: #95a5a6;
-    --success-color: #2ecc71;
-    --danger-color: #e74c3c;
-    --accent-color: #f1c40f;
-   }
-   * { box-sizing: border-box; }
-   body {
-    margin: 0; font-family: 'Inter', sans-serif;
-    background: var(--bg); color: var(--text);
-    transition: background 0.3s ease, color 0.3s ease;
-    font-size: 16px;
-   }
-   #bubbleCanvas {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    z-index: -1; pointer-events: none; opacity: 0.6;
-    transition: opacity 0.5s ease;
-   }
-   body.dark #bubbleCanvas { opacity: 1; }
-   .sidebar {
-    position: fixed; top: 0; left: 0; width: 250px; height: 100vh;
-    background: var(--sidebar-bg); padding: 25px;
-    box-shadow: 2px 0 10px var(--shadow);
-    display: flex; flex-direction: column; gap: 20px;
-    z-index: 10;
-   }
-   .main { margin-left: 270px; padding: 30px; }
-   .card {
-    background: var(--card-bg); padding: 25px;
-    border-radius: var(--border-radius); box-shadow: 0 4px 15px var(--shadow);
-    margin-bottom: 25px;
-   }
-   h2 { color: var(--primary-color); margin-top: 0; font-weight: 700; }
-   .dashboard-row { display: flex; gap: 20px; flex-wrap: wrap; }
-   .stat-card {
-    flex: 1; min-width: 200px; padding: 20px;
-    background: var(--card-bg); border-radius: var(--border-radius);
-    box-shadow: 0 4px 10px var(--shadow); text-align: center;
-   }
-   .stat-card h3 { margin: 0; font-size: 1rem; opacity: 0.8; }
-   .stat-card p { font-size: 2rem; margin: 10px 0 0; font-weight: bold; }
-   #statOT.positive { color: var(--success-color); }
-   #statOT.negative { color: var(--danger-color); }
-   input, button, select {
-    width: 100%; padding: 12px; margin-top: 8px;
-    border-radius: 8px; border: 1px solid #ddd;
-    font-size: 1rem; box-sizing: border-box;
-    transition: all 0.2s ease;
-   }
-   input:focus, select:focus { border-color: var(--primary-color); outline: none; box-shadow: 0 0 5px rgba(62, 124, 177, 0.3); }
-   button {
-    background: var(--primary-color); color: white; border: none;
-    font-weight: bold; cursor: pointer;
-   }
-   button:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-   button.secondary { background-color: var(--secondary-color); }
-   button.danger { background-color: var(--danger-color); }
-   .modal {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-    display: flex; align-items: center; justify-content: center; z-index: 9999;
-   }
-   .modal-content {
-    background: var(--card-bg); color: var(--text); padding: 30px;
-    border-radius: var(--border-radius); text-align: center;
-    max-width: 450px; width: 90%;
-   }
-   .theme-toggle { position: absolute; top: 25px; right: 25px; z-index: 100; }
-   .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
-   .switch input { opacity: 0; width: 0; height: 0; }
-   .slider { position: absolute; cursor: pointer; background-color: #ccc; border-radius: 34px; inset: 0; transition: .4s; }
-   .slider:before {
-    content: "☀️"; position: absolute; height: 26px; width: 26px;
-    left: 4px; bottom: 4px; background-color: white; color: black;
-    border-radius: 50%; text-align: center; line-height: 26px;
-    transition: .4s; font-size: 14px;
-   }
-   input:checked + .slider { background-color: var(--primary-color); }
-   input:checked + .slider:before { transform: translateX(26px); content: "🌙"; }
-   .chart-row { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
-   .pie-chart-container { flex: 1; min-width: 300px; max-width: 400px; }
-   .line-chart-container { flex: 2; min-width: 400px; }
-   .history-entry { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
-   .history-entry:last-child { border-bottom: none; }
-   .history-entry span:first-child { font-weight: 600; }
-   .history-entry button { width: auto; padding: 5px 10px; margin: 0; }
-   @media (max-width: 768px) {
-    .sidebar { position: static; width: 100%; height: auto; box-shadow: none; padding: 15px; }
-    .main { margin-left: 0; padding: 15px; }
-    .theme-toggle { top: 15px; right: 15px; }
-    .dashboard-row, .chart-row { flex-direction: column; }
-   }
+  :root {
+   --bg: #f4f6fb;
+   --text: #333;
+   --card-bg: white;
+   --sidebar-bg: white;
+   --shadow: rgba(0,0,0,0.08);
+   --primary-color: #3e7cb1;
+   --secondary-color: #6c757d;
+   --success-color: #28a745;
+   --danger-color: #dc3545;
+   --accent-color: #ff9900;
+   --border-radius: 12px;
+  }
+  body.dark {
+   --bg: #1e202a;
+   --text: #e0e6f1;
+   --card-bg: #2b2f3d;
+   --sidebar-bg: #2b2f3d;
+   --shadow: rgba(0,0,0,0.3);
+   --primary-color: #4da6ff;
+   --secondary-color: #95a5a6;
+   --success-color: #2ecc71;
+   --danger-color: #e74c3c;
+   --accent-color: #f1c40f;
+  }
+  * { box-sizing: border-box; }
+  body {
+   margin: 0; font-family: 'Inter', sans-serif;
+   background: var(--bg); color: var(--text);
+   transition: background 0.3s ease, color 0.3s ease;
+   font-size: 16px;
+  }
+  #bubbleCanvas {
+   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+   z-index: -1; pointer-events: none; opacity: 0.6;
+   transition: opacity 0.5s ease;
+  }
+  body.dark #bubbleCanvas { opacity: 1; }
+  .sidebar {
+   position: fixed; top: 0; left: 0; width: 250px; height: 100vh;
+   background: var(--sidebar-bg); padding: 25px;
+   box-shadow: 2px 0 10px var(--shadow);
+   display: flex; flex-direction: column; gap: 20px;
+   z-index: 10;
+  }
+  .main { margin-left: 270px; padding: 30px; }
+  .card {
+   background: var(--card-bg); padding: 25px;
+   border-radius: var(--border-radius); box-shadow: 0 4px 15px var(--shadow);
+   margin-bottom: 25px;
+  }
+  h2 { color: var(--primary-color); margin-top: 0; font-weight: 700; }
+  .dashboard-row { display: flex; gap: 20px; flex-wrap: wrap; }
+  .stat-card {
+   flex: 1; min-width: 200px; padding: 20px;
+   background: var(--card-bg); border-radius: var(--border-radius);
+   box-shadow: 0 4px 10px var(--shadow); text-align: center;
+  }
+  .stat-card h3 { margin: 0; font-size: 1rem; opacity: 0.8; }
+  .stat-card p { font-size: 2rem; margin: 10px 0 0; font-weight: bold; }
+  #statOT.positive { color: var(--success-color); }
+  #statOT.negative { color: var(--danger-color); }
+  input, button, select {
+   width: 100%; padding: 12px; margin-top: 8px;
+   border-radius: 8px; border: 1px solid #ddd;
+   font-size: 1rem; box-sizing: border-box;
+   transition: all 0.2s ease;
+  }
+  input:focus, select:focus { border-color: var(--primary-color); outline: none; box-shadow: 0 0 5px rgba(62, 124, 177, 0.3); }
+  button {
+   background: var(--primary-color); color: white; border: none;
+   font-weight: bold; cursor: pointer;
+  }
+  button:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+  button.secondary { background-color: var(--secondary-color); }
+  button.danger { background-color: var(--danger-color); }
+  .modal {
+   position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+   display: flex; align-items: center; justify-content: center; z-index: 9999;
+  }
+  .modal-content {
+   background: var(--card-bg); color: var(--text); padding: 30px;
+   border-radius: var(--border-radius); text-align: center;
+   max-width: 450px; width: 90%;
+  }
+  .theme-toggle { position: absolute; top: 25px; right: 25px; z-index: 100; }
+  .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; background-color: #ccc; border-radius: 34px; inset: 0; transition: .4s; }
+  .slider:before {
+   content: "☀️"; position: absolute; height: 26px; width: 26px;
+   left: 4px; bottom: 4px; background-color: white; color: black;
+   border-radius: 50%; text-align: center; line-height: 26px;
+   transition: .4s; font-size: 14px;
+  }
+  input:checked + .slider { background-color: var(--primary-color); }
+  input:checked + .slider:before { transform: translateX(26px); content: "🌙"; }
+  .chart-row { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+  .chart-container { flex: 1; min-width: 300px; }
+  .history-entry { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+  .history-entry:last-child { border-bottom: none; }
+  .history-entry span:first-child { font-weight: 600; }
+  .history-entry button { width: auto; padding: 5px 10px; margin: 0; }
+  .calculator-form-group { text-align: left; margin-bottom: 15px; }
+  .calculator-form-group label { display: block; margin-bottom: 5px; }
+  .calculator-form-group input { width: 100%; }
+  .dashboard-widgets {
+   display: flex;
+   gap: 20px;
+   flex-wrap: wrap;
+   align-items: stretch;
+   margin-bottom: 25px;
+  }
+  .dashboard-widgets .card { flex: 1; min-width: 250px; margin-top :0.8em;}
+  .calculator-card { flex: 2; min-width: 350px; }
+  .result-icon {
+   display: inline-block;
+   width: 1em;
+   text-align: center;
+   margin-right: 0.5em;
+  }
+  @media (max-width: 768px) {
+   .sidebar { position: static; width: 100%; height: auto; box-shadow: none; padding: 15px; }
+   .main { margin-left: 0; padding: 15px; }
+   .theme-toggle { top: 15px; right: 15px; }
+   .dashboard-row, .chart-row, .dashboard-widgets { flex-direction: column; }
+   .dashboard-widgets .card { min-width: auto; }
+  }
  </style>
 </head>
 <body>
  <canvas id="bubbleCanvas"></canvas>
 
  <div id="loginModal" class="modal">
-   <div class="modal-content">
-    <h2>👋 Welcome to FlexTime!</h2>
-    <p>What should I call you?</p>
-    <input type="text" id="usernameInput" placeholder="Enter your name">
-    <button onclick="saveUser()">Start</button>
-   </div>
+  <div class="modal-content">
+   <h2>👋 Welcome to FlexTime!</h2>
+   <p>What should I call you?</p>
+   <input type="text" id="usernameInput" placeholder="Enter your name">
+   <button onclick="saveUser()">Start</button>
+  </div>
  </div>
 
  <div class="theme-toggle">
-   <label class="switch">
-    <input type="checkbox" id="themeSwitch" onchange="toggleTheme()">
-    <span class="slider"></span>
-   </label>
+  <label class="switch">
+   <input type="checkbox" id="themeSwitch" onchange="toggleTheme()">
+   <span class="slider"></span>
+  </label>
  </div>
 
  <div class="sidebar">
-   <h2>🧘 FlexTime</h2>
-   <p id="userGreeting">Welcome!</p>
-   <button onclick="openFlexCalc()">Log Daily Hours</button>
-   <button onclick="openHistoryModal()" class="secondary">View Log History</button>
-   <div style="margin-top: auto; display: flex; gap: 10px;">
-    <button onclick="resetApp()" class="danger">Reset Data</button>
-   </div>
+  <h2>🧘 FlexTime</h2>
+  <p id="userGreeting">Welcome!</p>
+  <button onclick="openHistoryModal()" class="secondary">View Log History</button>
+  <div style="margin-top: auto; display: flex; gap: 10px;">
+   <button onclick="resetApp()" class="danger">Reset Data</button>
+  </div>
  </div>
 
  <div class="main">
-   <div class="dashboard-row">
-    <div class="stat-card">
-      <h3>Today's Hours</h3>
-      <p id="statToday">0h</p>
-    </div>
-    <div class="stat-card">
-      <h3>This Week</h3>
-      <p id="statWeek">0h</p>
-    </div>
-    <div class="stat-card">
-      <h3>Total OT Balance</h3>
-      <p id="statOT">0h</p>
-    </div>
+  <div class="dashboard-row">
+   <div class="stat-card">
+    <h3>Today's Hours</h3>
+    <p id="statToday">0h</p>
    </div>
-   <div class="dashboard-row">
-    <div class="stat-card">
-      <h3>🎲 Fun Fact</h3>
-      <p id="funFact" style="font-size: 1rem; font-weight: normal; min-height: 60px;">Loading...</p>
+   <div class="stat-card">
+    <h3>This Week</h3>
+    <p id="statWeek">0h</p>
+   </div>
+   <div class="stat-card">
+    <h3>Total OT Balance</h3>
+    <p id="statOT">0h</p>
+   </div>
+  </div>
+  <div class="dashboard-widgets">
+   <div class="card">
+    <h2>🎲 Fun Fact</h2>
+    <p id="funFact" style="font-size: 1rem; font-weight: normal; min-height: 60px;">Loading...</p>
+   </div>
+   <div class="card calculator-card">
+    <h2>⏱️ Log Daily Hours</h2>
+    <div class="calculator-form-group">
+     <label><input type="checkbox" id="flexMode" onchange="toggleFlexMode(this)"> Flex Leave Mode</label>
     </div>
-    <div class="stat-card">
-      <h3>🌦️ Weather</h3>
-      <p id="weather" style="font-size: 1.2rem; min-height: 60px;">Fetching...</p>
+    <div class="calculator-form-group">
+     <label>Date:</label>
+     <input type="date" id="logDate" value="${new Date().toISOString().split('T')[0]}">
     </div>
+    <div class="calculator-form-group">
+     <label>Start Time:</label>
+     <input type="time" id="startTime">
+    </div>
+    <div id="endTimeGroup" class="calculator-form-group">
+     <label>End Time:</label>
+     <input type="time" id="endTime">
+    </div>
+    <div class="calculator-form-group">
+     <label>Overtime Used (hours):</label>
+     <input type="number" id="overtime" step="0.01" value="0">
+    </div>
+    <button onclick="calculateAndLogHours()">Calculate & Log</button>
+    <div id="result" style="margin-top: 15px; padding: 10px; border-radius: 5px; background: #e9ecef; color: #333; white-space: pre-wrap; text-align: left;"></div>
    </div>
    <div class="card">
-    <h2>📊 Visual Insights</h2>
-    <div class="chart-row">
-      <div class="pie-chart-container">
-       <canvas id="workedHoursChart"></canvas>
-      </div>
-      <div class="line-chart-container">
-       <canvas id="overtimeBalanceChart"></canvas>
-      </div>
+    <h2>🌦️ Weather</h2>
+    <p id="weather" style="font-size: 1.2rem; min-height: 60px;">Fetching...</p>
+   </div>
+  </div>
+  <div class="card">
+   <h2>📊 Visual Insights</h2>
+   <div class="chart-row">
+    <div class="chart-container">
+     <canvas id="workedHoursChart"></canvas>
+    </div>
+    <div class="chart-container">
+     <canvas id="overtimeBalanceChart"></canvas>
     </div>
    </div>
+  </div>
  </div>
 
 <script>
@@ -212,26 +253,26 @@ const DOM = {
 document.addEventListener("DOMContentLoaded", () => {
  const storedUser = localStorage.getItem("username");
  if (!storedUser) {
-   DOM.loginModal.style.display = 'flex';
+  DOM.loginModal.style.display = 'flex';
  } else {
-   initializeApp(storedUser);
-   DOM.loginModal.style.display = 'none';
+  initializeApp(storedUser);
+  DOM.loginModal.style.display = 'none';
  }
  const isDark = localStorage.getItem('theme') === 'dark';
  document.body.classList.toggle('dark', isDark);
  DOM.themeSwitch.checked = isDark;
  
  if (document.body.classList.contains('dark')) {
-   requestAnimationFrame(animateBubbles);
+  requestAnimationFrame(animateBubbles);
  }
 });
 
 function saveUser() {
  const username = DOM.usernameInput.value.trim();
  if (username) {
-   localStorage.setItem('username', username);
-   DOM.loginModal.style.display = 'none';
-   initializeApp(username);
+  localStorage.setItem('username', username);
+  DOM.loginModal.style.display = 'none';
+  initializeApp(username);
  }
 }
 
@@ -248,7 +289,7 @@ function toggleTheme() {
  document.body.classList.toggle('dark', isChecked);
  localStorage.setItem('theme', isChecked ? 'dark' : 'light');
  if (isChecked) {
-   requestAnimationFrame(animateBubbles);
+  requestAnimationFrame(animateBubbles);
  }
  renderCharts();
 }
@@ -261,20 +302,18 @@ function setFunFact() {
 
 function fetchWeather() {
  DOM.weather.textContent = "Fetching...";
- // Reverting to the simpler, non-dynamic weather source as requested
- // This fetches weather for Bruchsal using a simple public service
  fetch('https://wttr.in/Bruchsal?format=%C+%t')
-   .then(res => {
-    if (!res.ok) {
-      throw new Error('Weather data not available.');
-    }
-    return res.text();
-   })
-   .then(data => DOM.weather.textContent = data)
-   .catch(error => {
-    console.error('Error fetching weather:', error);
-    DOM.weather.textContent = "N/A";
-   });
+  .then(res => {
+   if (!res.ok) {
+    throw new Error('Weather data not available.');
+   }
+   return res.text();
+  })
+  .then(data => DOM.weather.textContent = data)
+  .catch(error => {
+   console.error('Error fetching weather:', error);
+   DOM.weather.textContent = "N/A";
+  });
 }
 
 // --- STATS & CHARTS ---
@@ -289,14 +328,14 @@ function calcStats() {
  const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1)));
  
  for (const log of logs) {
-   const logDate = new Date(log.date);
-   if (log.date === todayDate) {
-    todayTotal += log.worked || 0;
-   }
-   if (logDate >= startOfWeek) {
-    thisWeekLogs.push(log);
-   }
-   cumulativeOT += (log.worked || 0) - 8;
+  const logDate = new Date(log.date);
+  if (log.date === todayDate) {
+   todayTotal += log.worked || 0;
+  }
+  if (logDate >= startOfWeek) {
+   thisWeekLogs.push(log);
+  }
+  cumulativeOT += (log.worked || 0) - 8;
  }
  
  const weekTotal = thisWeekLogs.reduce((a, b) => a + (b.worked || 0), 0);
@@ -321,72 +360,52 @@ function renderCharts() {
 
  if (workedHoursChartInstance) workedHoursChartInstance.destroy();
  workedHoursChartInstance = new Chart(DOM.workedHoursCanvas, {
-   type: "pie",
-   data: {
-    labels: labels.slice(-7),
-    datasets: [{
-      label: "Hours Worked",
-      data: workedData.slice(-7),
-      backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40", "#E7E9ED"],
-      hoverOffset: 4
-    }]
-   },
-   options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { title: { display: true, text: "Recent Hours Distribution" } }
+  type: "bar",
+  data: {
+   labels: labels.slice(-7),
+   datasets: [{
+    label: "Hours Worked",
+    data: workedData.slice(-7),
+    backgroundColor: ["#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40", "#E7E9ED", "#FF6384"],
+    borderColor: chartTextColor,
+    borderWidth: 1
+   }]
+  },
+  options: {
+   responsive: true,
+   maintainAspectRatio: false,
+   plugins: { title: { display: true, text: "Recent Hours Worked" } },
+   scales: {
+    y: { beginAtZero: true }
    }
+  }
  });
 
  let cumulative = 0;
  const balanceData = workedData.map(w => cumulative += (w - 8));
  if (overtimeBalanceChartInstance) overtimeBalanceChartInstance.destroy();
  overtimeBalanceChartInstance = new Chart(DOM.overtimeBalanceCanvas, {
-   type: "line",
-   data: {
-    labels,
-    datasets: [{
-      label: "Cumulative Overtime (h)",
-      data: balanceData,
-      fill: true,
-      borderColor: getComputedStyle(document.body).getPropertyValue('--primary-color'),
-      backgroundColor: 'rgba(62, 124, 177, 0.1)',
-      tension: 0.3
-    }]
-   },
-   options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { title: { display: true, text: "Overtime Balance Trend" } }
-   }
+  type: "line",
+  data: {
+   labels,
+   datasets: [{
+    label: "Cumulative Overtime (h)",
+    data: balanceData,
+    fill: true,
+    borderColor: getComputedStyle(document.body).getPropertyValue('--primary-color'),
+    backgroundColor: 'rgba(62, 124, 177, 0.1)',
+    tension: 0.3
+   }]
+  },
+  options: {
+   responsive: true,
+   maintainAspectRatio: false,
+   plugins: { title: { display: true, text: "Overtime Balance Trend" } }
+  }
  });
 }
 
 // --- MODALS & CALCULATOR LOGIC ---
-function openFlexCalc() {
- const existingModal = document.getElementById('flexModal');
- if (existingModal) existingModal.remove();
-
- const modalHTML = `
-   <div id="flexModal" class="modal">
-    <div class="modal-content">
-      <h2>⏱️ Log Daily Hours</h2>
-      <div style="text-align: left;">
-       <label style="display: block; margin-bottom: 15px;"><input type="checkbox" id="flexMode" onchange="toggleFlexMode(this)"> Flex Leave Mode</label>
-       <div style="margin-bottom: 10px;"><label>Date:</label><input type="date" id="logDate" value="${new Date().toISOString().split('T')[0]}"></div>
-       <div style="margin-bottom: 10px;"><label>Start Time:</label><input type="time" id="startTime"></div>
-       <div id="endTimeGroup" style="margin-bottom: 10px;"><label>End Time:</label><input type="time" id="endTime"></div>
-       <div style="margin-bottom: 10px;"><label>Overtime Used (hours):</label><input type="number" id="overtime" step="0.01" value="0"></div>
-      </div>
-      <button onclick="calculateAndLogHours()">Calculate & Log</button>
-      <div id="result" style="margin-top: 15px; padding: 10px; border-radius: 5px; background: #e9ecef; color: #333; white-space: pre-wrap; text-align: left;"></div>
-      <button class="secondary" onclick="closeModal('flexModal')">Close</button>
-    </div>
-   </div>
- `;
- document.body.insertAdjacentHTML('beforeend', modalHTML);
-}
-
 function toggleFlexMode(checkbox) {
  document.getElementById('endTimeGroup').style.display = checkbox.checked ? 'none' : 'block';
  document.getElementById('overtime').value = 0;
@@ -401,42 +420,56 @@ function calculateAndLogHours() {
  const resultBox = document.getElementById('result');
 
  if (!date || !start) {
-   resultBox.textContent = "Please enter a date and start time.";
-   return;
+  resultBox.textContent = "Please enter a date and start time.";
+  return;
  }
 
- const [startH, startM] = start.split(":").map(Number);
  const startDate = new Date(`${date}T${start}:00`);
  let workedHours = 0;
  let logResult = "";
 
  if (flexMode) {
-   const requiredMinutes = (8 * 60 + pause) - (overtimeUsed * 60);
-   const leaveDate = new Date(startDate.getTime() + requiredMinutes * 60000);
-   const h = String(leaveDate.getHours()).padStart(2, '0');
-   const m = String(leaveDate.getMinutes()).padStart(2, '0');
-   logResult = `✅ To work a full day (8h), leave at: ${h}:${m}`;
-   workedHours = 8 - overtimeUsed;
+  const requiredMinutes = (8 * 60 + pause) - (overtimeUsed * 60);
+  const leaveDate = new Date(startDate.getTime() + requiredMinutes * 60000);
+  const h = String(leaveDate.getHours()).padStart(2, '0');
+  const m = String(leaveDate.getMinutes()).padStart(2, '0');
+  logResult = `✅ To work a full day (8h), leave at: ${h}:${m}`;
+  workedHours = 8 - overtimeUsed;
  } else {
-   const end = document.getElementById('endTime').value;
-   if (!end) {
-    resultBox.textContent = "Please enter end time.";
-    return;
-   }
-   const [endH, endM] = end.split(":").map(Number);
-   const endDate = new Date(`${date}T${end}:00`);
-   workedHours = ((endDate - startDate) / 60000 - pause) / 60;
-   logResult = `🕒 Worked: ${workedHours.toFixed(2)} hours`;
+  const end = document.getElementById('endTime').value;
+  if (!end) {
+   resultBox.textContent = "Please enter an end time.";
+   return;
+  }
+  const endDate = new Date(`${date}T${end}:00`);
+  
+  if (endDate <= startDate) {
+   resultBox.textContent = "End time must be after start time.";
+   return;
+  }
+
+  const workedMinutes = (endDate - startDate) / 60000 - pause;
+  workedHours = workedMinutes / 60;
+  const dailyBalance = workedHours - 8;
+
+  // Constructing the multi-line output as per the screenshot
+  let textLines = [`<span class="result-icon">🕒</span> Worked: ${workedHours.toFixed(2)} hours`];
+  if (dailyBalance < 0) {
+   textLines.push(`<span class="result-icon">⚠️</span> Short by: ${Math.abs(dailyBalance).toFixed(2)} hours`);
+  } else if (dailyBalance > 0) {
+   textLines.push(`<span class="result-icon">💼</span> Overtime left: ${dailyBalance.toFixed(2)} hours`);
+  }
+  logResult = textLines.join('\n');
  }
  
- resultBox.textContent = logResult;
+ resultBox.innerHTML = logResult;
  
  const logs = JSON.parse(localStorage.getItem("sessionLog") || "[]");
  const existingEntryIndex = logs.findIndex(entry => entry.date === date);
  if (existingEntryIndex !== -1) {
-   logs[existingEntryIndex] = { date: date, worked: parseFloat(workedHours.toFixed(2)) };
+  logs[existingEntryIndex] = { date: date, worked: parseFloat(workedHours.toFixed(2)) };
  } else {
-   logs.push({ date: date, worked: parseFloat(workedHours.toFixed(2)) });
+  logs.push({ date: date, worked: parseFloat(workedHours.toFixed(2)) });
  }
  
  localStorage.setItem("sessionLog", JSON.stringify(logs));
@@ -447,35 +480,35 @@ function calculateAndLogHours() {
 function openHistoryModal() {
  const logs = JSON.parse(localStorage.getItem("sessionLog") || "[]").sort((a, b) => new Date(b.date) - new Date(a.date));
  const historyListHTML = logs.map(log => `
-   <div class="history-entry">
-    <span>${log.date}</span>
-    <span>${log.worked}h</span>
-    <button class="danger" onclick="deleteLogEntry('${log.date}')">Delete</button>
-   </div>
+  <div class="history-entry">
+   <span>${log.date}</span>
+   <span>${log.worked}h</span>
+   <button class="danger" onclick="deleteLogEntry('${log.date}')">Delete</button>
+  </div>
  `).join('');
 
  const modalHTML = `
-   <div id="historyModal" class="modal">
-    <div class="modal-content">
-      <h2>📜 Log History</h2>
-      <div id="historyList" style="text-align: left; max-height: 400px; overflow-y: auto; padding: 10px;">
-       ${historyListHTML || '<p>No log entries found.</p>'}
-      </div>
-      <button class="secondary" onclick="closeModal('historyModal')">Close</button>
+  <div id="historyModal" class="modal">
+   <div class="modal-content">
+    <h2>📜 Log History</h2>
+    <div id="historyList" style="text-align: left; max-height: 400px; overflow-y: auto; padding: 10px;">
+     ${historyListHTML || '<p>No log entries found.</p>'}
     </div>
+    <button class="secondary" onclick="closeModal('historyModal')">Close</button>
    </div>
+  </div>
  `;
  document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
 
 function deleteLogEntry(date) {
  if (confirm(`Are you sure you want to delete the log for ${date}?`)) {
-   let logs = JSON.parse(localStorage.getItem("sessionLog") || "[]");
-   logs = logs.filter(log => log.date !== date);
-   localStorage.setItem("sessionLog", JSON.stringify(logs));
-   renderCharts();
-   calcStats();
-   openHistoryModal();
+  let logs = JSON.parse(localStorage.getItem("sessionLog") || "[]");
+  logs = logs.filter(log => log.date !== date);
+  localStorage.setItem("sessionLog", JSON.stringify(logs));
+  renderCharts();
+  calcStats();
+  openHistoryModal();
  }
 }
 
@@ -486,8 +519,8 @@ function closeModal(id) {
 
 function resetApp() {
  if (confirm("Are you sure you want to reset ALL data? This cannot be undone.")) {
-   localStorage.clear();
-   location.reload();
+  localStorage.clear();
+  location.reload();
  }
 }
 
