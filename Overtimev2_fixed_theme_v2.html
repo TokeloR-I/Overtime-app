@@ -214,62 +214,75 @@ input:checked + .slider:before {
     }
 
     function calculateHours() {
-      const start = document.getElementById('startTime').value;
-      const overtime = parseFloat(document.getElementById('overtime').value) || 0;
-      const pause = 0;
-      const flexMode = document.getElementById('flexMode').checked;
-      const resultBox = document.getElementById('result');
+  const start = document.getElementById('startTime').value;
+  const overtime = parseFloat(document.getElementById('overtime').value) || 0;
+  const pause = 0;
+  const flexMode = document.getElementById('flexMode').checked;
+  const resultBox = document.getElementById('result');
 
-      if (!start || isNaN(overtime)) {
-        resultBox.textContent = "Please enter start time and overtime.";
-        return;
-      }
+  if (!start || isNaN(overtime)) {
+    resultBox.textContent = "Please enter start time and overtime.";
+    return;
+  }
 
-      const [startH, startM] = start.split(":").map(Number);
-      const startDate = new Date();
-      startDate.setHours(startH, startM, 0, 0);
+  const [startH, startM] = start.split(":").map(Number);
+  const startDate = new Date();
+  startDate.setHours(startH, startM, 0, 0);
 
-      if (flexMode) {
-        const totalMinutes = 8 * 60 + 45 - (overtime * 60);
-        const leaveDate = new Date(startDate.getTime() + totalMinutes * 60000);
-        const h = String(leaveDate.getHours()).padStart(2, '0');
-        const m = String(leaveDate.getMinutes()).padStart(2, '0');
-        resultBox.textContent = `✅ Leave at: ${h}:${m} with ${overtime}h of overtime.`;
-      } else {
-        const end = document.getElementById('endTime').value;
-        if (!end) {
-          resultBox.textContent = "Please enter end time.";
-          return;
-        }
-        const [endH, endM] = end.split(":").map(Number);
-        const endDate = new Date();
-        endDate.setHours(endH, endM, 0, 0);
-        let workedMinutes = (endDate - startDate) / 60000 - 45 - pause;
-        let workedHours = workedMinutes / 60;
-        let shortfall = 8 - workedHours;
-        let remainingOvertime = overtime - shortfall;
+  if (flexMode) {
+    const requiredMinutes = 8 * 60 + 45;
 
-        let text = `🕒 Worked: ${workedHours.toFixed(2)} hours
-`;
-        if (shortfall > 0) {
-          text += `⚠️ Short by: ${shortfall.toFixed(2)} hours
-`;
-        } else {
-          text += `✅ Required hours complete!
-`;
-        }
-        text += `💼 Overtime left: ${remainingOvertime.toFixed(2)} hours`;
-        resultBox.textContent = text;
-      }
+    if (overtime >= 8.75) {
+      resultBox.textContent = `✅  Take the whole day off! 🎉`;
+    } else {
+      const totalMinutes = requiredMinutes - (overtime * 60);
+      const leaveDate = new Date(startDate.getTime() + totalMinutes * 60000);
+      const h = String(leaveDate.getHours()).padStart(2, '0');
+      const m = String(leaveDate.getMinutes()).padStart(2, '0');
+      resultBox.textContent = `✅ Leave at: ${h}:${m} with ${overtime}h of overtime.`;
     }
+  } else {
+    const end = document.getElementById('endTime').value;
+    if (!end) {
+      resultBox.textContent = "Please enter end time.";
+      return;
+    }
+    const [endH, endM] = end.split(":").map(Number);
+    const endDate = new Date();
+    endDate.setHours(endH, endM, 0, 0);
+    let workedMinutes = (endDate - startDate) / 60000 - 45 - pause;
+    let workedHours = workedMinutes / 60;
+    let shortfall = 8 - workedHours;
+    let remainingOvertime = overtime - shortfall;
+
+    let text = `🕒 Worked: ${workedHours.toFixed(2)} hours\n`;
+    if (shortfall > 0) {
+      text += `⚠️ Short by: ${shortfall.toFixed(2)} hours\n`;
+    } else {
+      text += `✅ Required hours complete!\n`;
+    }
+    text += `💼 Overtime left: ${remainingOvertime.toFixed(2)} hours`;
+    resultBox.textContent = text;
+  }
+}
+
 
     function getRandomFact() {
       const facts = [
         "Octopuses have 3 hearts.",
-        "You can't hum while holding your nose.",
-        "Honey never spoils — even after 3000 years.",
-        "A day on Venus is longer than a year.",
-        "Scotland’s national animal is the unicorn."
+    "You can't hum while holding your nose.",
+    "Honey never spoils — even after 3000 years.",
+    "A day on Venus is longer than a year.",
+    "Scotland’s national animal is the unicorn.",
+    "Bananas are berries, but strawberries are not.",
+    "A day on Venus is longer than a year on Venus.",
+    "A single spaghetti noodle is called a “spaghetto”.",
+    "Bananas are radioactive.",
+    "Spider silk is a natural adhesive.",
+    "Tulips originated in Turkey, not the Netherlands.",
+    "South Africa has three capital cities.",
+    "Sharks existed before trees."
+		
       ];
       document.getElementById('funFact').textContent = facts[Math.floor(Math.random() * facts.length)];
     }
