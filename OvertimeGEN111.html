@@ -6,29 +6,29 @@
   <title>FlexTime & Freedom Hub (Ultimate)</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    /* --- SHARED VARIABLES --- */
+    /* --- CSS VARIABLES (THEME ENGINE) --- */
     :root {
+      /* DEFAULT (MIDNIGHT) */
       --bg: #0f172a;
       --panel: #1e293b;
       --input: #334155;
       --text: #f8fafc;
       --text-muted: #94a3b8;
-      
       --accent: #38bdf8;       
-      --holiday: #38bdf8;      /* Moonlight Blue */
-      --bridge: #fbbf24;       /* Gold */
-      --trip: #4ade80;         /* Green */
-      
+      --holiday: #38bdf8;      
+      --bridge: #fbbf24;       
+      --trip: #4ade80;         
       --success: #4ade80;
       --danger: #f87171;
-      
       --border: rgba(255,255,255,0.1);
       --widget-bg: rgba(255, 255, 255, 0.03);
       --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      --glass: 0px; /* Default no blur */
     }
     
-    body.light {
-      --bg: #f1f5f9;
+    /* THEME: DAYLIGHT */
+    body.theme-daylight {
+      --bg: #f8fafc;
       --panel: #ffffff;
       --input: #e2e8f0;
       --text: #0f172a;
@@ -42,12 +42,67 @@
       --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
     }
 
+    /* THEME: ORIGINAL (Glassmorphism) */
+    body.theme-original {
+      /* Deep Purple to Blue Gradient Background */
+      --bg: linear-gradient(135deg, #4c1d95 0%, #1e3a8a 100%); 
+      /* Translucent White Panels */
+      --panel: rgba(255, 255, 255, 0.1); 
+      --input: rgba(0, 0, 0, 0.3);
+      --text: #ffffff;
+      --text-muted: #e2e8f0;
+      /* The OG Yellow Button */
+      --accent: #fbbf24; 
+      --holiday: #38bdf8;
+      --bridge: #fbbf24;
+      --trip: #4ade80;
+      --success: #4ade80;
+      --danger: #f87171;
+      --border: rgba(255,255,255,0.2);
+      --widget-bg: rgba(255, 255, 255, 0.05);
+      --glass: 12px; /* Blur strength */
+      --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    }
+
+    /* THEME: FOREST */
+    body.theme-forest {
+      --bg: #022c22;
+      --panel: #064e3b;
+      --input: #065f46;
+      --text: #ecfdf5;
+      --text-muted: #6ee7b7;
+      --accent: #34d399;
+      --holiday: #34d399;
+      --bridge: #fbbf24;
+      --trip: #a7f3d0;
+      --success: #34d399;
+    }
+
+    /* THEME: MATRIX */
+    body.theme-matrix {
+      --bg: #000000;
+      --panel: #111111;
+      --input: #222222;
+      --text: #00ff41;
+      --text-muted: #008f11;
+      --accent: #00ff41;
+      --holiday: #00ff41;
+      --bridge: #ffff00;
+      --trip: #003b00;
+      --success: #00ff41;
+      --danger: #ff0000;
+      --border: #003b00;
+    }
+
     /* --- LAYOUT --- */
     * { box-sizing: border-box; }
     body {
       margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text);
       display: flex; justify-content: center; align-items: center; min-height: 100vh;
-      transition: background 0.3s ease; padding: 20px; overflow-x: hidden;
+      transition: background 0.3s ease, color 0.3s ease; padding: 20px; overflow-x: hidden;
+      /* For gradient backgrounds to fill screen */
+      background-attachment: fixed; 
+      background-size: cover;
     }
 
     #app-container { width: 100%; max-width: 1000px; position: relative; z-index: 2; }
@@ -57,6 +112,7 @@
       display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
       background: var(--panel); padding: 10px 20px; border-radius: 50px;
       border: 1px solid var(--border); box-shadow: var(--shadow);
+      backdrop-filter: blur(var(--glass)); -webkit-backdrop-filter: blur(var(--glass));
     }
     .nav-tabs { display: flex; gap: 10px; }
     .nav-btn {
@@ -64,8 +120,17 @@
       font-weight: 600; cursor: pointer; padding: 8px 16px; border-radius: 20px; transition: 0.2s;
     }
     .nav-btn:hover { color: var(--text); background: var(--widget-bg); }
-    .nav-btn.active { background: var(--accent); color: white; }
-    .theme-switch { cursor: pointer; font-size: 1.2rem; padding: 5px; }
+    .nav-btn.active { background: var(--accent); color: white; } 
+    /* Fix text color on yellow buttons */
+    body.theme-original .nav-btn.active { color: #0f172a; }
+    body.theme-daylight .nav-btn.active { color: white; }
+    body.theme-matrix .nav-btn.active { color: black; background: var(--accent); }
+
+    .settings-btn { 
+        cursor: pointer; font-size: 1.2rem; padding: 8px; border-radius:50%;
+        background:none; border:none; transition:transform 0.3s; 
+    }
+    .settings-btn:hover { transform: rotate(90deg); background: var(--widget-bg); }
 
     /* --- VIEWS --- */
     .view-section { display: none; animation: fadeIn 0.3s ease; }
@@ -76,6 +141,7 @@
     .dashboard-card, .planner-container {
       background: var(--panel); padding: 30px; border-radius: 24px;
       box-shadow: var(--shadow); border: 1px solid var(--border);
+      backdrop-filter: blur(var(--glass)); -webkit-backdrop-filter: blur(var(--glass));
     }
     
     h1 { margin: 0; font-size: 1.8rem; font-weight: 800; letter-spacing: -1px; }
@@ -108,14 +174,17 @@
       justify-content: center; 
       min-height: 90px;
       transition: transform 0.2s, border-color 0.2s;
+      backdrop-filter: blur(var(--glass)); -webkit-backdrop-filter: blur(var(--glass));
     }
     .widget:hover { transform: translateY(-2px); border-color: var(--accent); }
-
     .widget-icon { font-size: 1.5rem; margin-bottom: 5px; }
     .widget-content { font-size: 0.9rem; color: var(--text-muted); line-height: 1.4; }
 
     /* --- VACATION PLANNER --- */
-    .vp-summary { display: flex; gap: 20px; margin-bottom: 20px; background: var(--bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border); align-items: center;}
+    .vp-summary { display: flex; gap: 20px; margin-bottom: 20px; background: var(--bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border); align-items: center; backdrop-filter: blur(var(--glass)); }
+    /* Fix for OG theme summary background to match panel logic */
+    body.theme-original .vp-summary { background: var(--panel); }
+
     .vp-stat { text-align: center; flex: 1; }
     .vp-stat .val { font-size: 1.5rem; font-weight: 800; color: var(--accent); }
     .vp-stat .lbl { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; }
@@ -124,11 +193,17 @@
 
     .vp-layout { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
     .vp-blocks { display: flex; flex-direction: column; gap: 15px; max-height: 400px; overflow-y: auto; }
-    .vp-card { background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 12px; position: relative; }
+    .vp-card { background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 12px; position: relative; backdrop-filter: blur(var(--glass)); }
+    body.theme-original .vp-card { background: var(--panel); }
+    
     .vp-card.over-limit { border-color: var(--danger); background: rgba(248, 113, 113, 0.1); }
     
     .btn { padding: 10px 20px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; width: 100%; }
     .btn-primary { background: var(--accent); color: white; }
+    /* Fix button text color for OG theme */
+    body.theme-original .btn-primary { color: #0f172a; }
+    body.theme-matrix .btn-primary { color: black; }
+    
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
     .btn-outline:hover { background: var(--widget-bg); color: var(--text); }
 
@@ -139,7 +214,7 @@
     .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
     
     .cal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-    .cal-month { background: var(--bg); border-radius: 12px; padding: 10px; border: 1px solid var(--border); }
+    .cal-month { background: var(--panel); border-radius: 12px; padding: 10px; border: 1px solid var(--border); backdrop-filter: blur(var(--glass)); }
     .cal-month-name { text-align: center; font-weight: 700; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted); }
     .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
     
@@ -164,9 +239,20 @@
       background: var(--panel); color: var(--text); border: 1px solid var(--border);
       border-radius: 16px; padding: 25px; width: 90%; max-width: 400px;
       box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     }
     dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
     .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+
+    /* --- THEME SELECTOR --- */
+    .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+    .theme-opt { 
+      padding: 10px; border-radius: 8px; border: 1px solid var(--border); 
+      cursor: pointer; display: flex; align-items: center; gap: 10px;
+      background: var(--input); color: var(--text);
+    }
+    .theme-opt:hover { border-color: var(--accent); }
+    .theme-preview { width: 24px; height: 24px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); }
 
     @media (max-width: 800px) { .dashboard-card, .vp-layout, .widgets-area { grid-template-columns: 1fr; } }
     #bubbleCanvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; }
@@ -194,6 +280,31 @@
     </div>
   </dialog>
 
+  <dialog id="themeModal">
+    <h2>🎨 Appearance</h2>
+    <p style="color:var(--text-muted); font-size:0.9rem;">Select your dashboard style.</p>
+    <div class="theme-grid">
+      <div class="theme-opt" onclick="setTheme('')">
+        <div class="theme-preview" style="background:#0f172a"></div> Midnight
+      </div>
+      <div class="theme-opt" onclick="setTheme('theme-original')">
+        <div class="theme-preview" style="background:linear-gradient(135deg, #4c1d95, #1e3a8a)"></div> Original (Glass)
+      </div>
+      <div class="theme-opt" onclick="setTheme('theme-daylight')">
+        <div class="theme-preview" style="background:#f8fafc; border:1px solid #ccc"></div> Daylight
+      </div>
+      <div class="theme-opt" onclick="setTheme('theme-forest')">
+        <div class="theme-preview" style="background:#022c22"></div> Forest
+      </div>
+      <div class="theme-opt" onclick="setTheme('theme-matrix')">
+        <div class="theme-preview" style="background:#000000; border:1px solid #00ff41"></div> Matrix
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-outline" onclick="document.getElementById('themeModal').close()">Close</button>
+    </div>
+  </dialog>
+
   <div id="app-container">
     
     <nav class="nav-bar">
@@ -201,7 +312,7 @@
         <button class="nav-btn active" onclick="switchView('tracker')">⏱️ Time Tracker</button>
         <button class="nav-btn" onclick="switchView('planner')">✈️ Vacation Planner</button>
       </div>
-      <div class="theme-switch" onclick="toggleTheme()">🌗</div>
+      <button class="settings-btn" onclick="document.getElementById('themeModal').showModal()" title="Theme Settings">⚙️</button>
     </nav>
 
     <div id="view-tracker" class="view-section active">
@@ -254,7 +365,7 @@
       <div class="planner-container">
         
         <div class="vp-summary">
-          <div class="vp-stat"><div class="val" id="vpTotal">28</div><div class="lbl">Allowance</div></div>
+          <div class="vp-stat"><div class="val" id="vpTotal">30</div><div class="lbl">Allowance</div></div>
           <div class="vp-stat"><div class="val" id="vpUsed">0</div><div class="lbl">Used</div></div>
           <div class="vp-stat"><div class="val" id="vpRemain">28</div><div class="lbl">Left</div></div>
           <div class="progress-track"><div class="progress-fill" id="vpBar"></div></div>
@@ -312,7 +423,15 @@
 
 <script>
   /* --- GLOBAL SETUP --- */
-  function toggleTheme() { document.body.classList.toggle('light'); }
+  let currentTheme = localStorage.getItem('appTheme') || '';
+  if(currentTheme) document.body.className = currentTheme;
+
+  function setTheme(theme) {
+    document.body.className = theme;
+    localStorage.setItem('appTheme', theme);
+    document.getElementById('themeModal').close();
+  }
+
   function switchView(v) { 
     document.querySelectorAll('.view-section').forEach(e=>e.classList.remove('active'));
     document.getElementById('view-'+v).classList.add('active');
@@ -350,7 +469,6 @@
     const isPredicting = (s2s && !s2e) || (!s2s && s1s && !s1e);
 
     if (isPredicting) {
-      // PREDICTION MODE
       const hoursNeeded = target - balance;
       const totalGrossNeeded = (hoursNeeded * 60) + deduction;
       const remainingGross = totalGrossNeeded - s1_mins;
@@ -367,18 +485,15 @@
         document.getElementById('heroSub').innerText = balance !== 0 ? (balance < 0 ? `Paying back ${Math.abs(balance)}h` : `Using ${balance}h surplus`) : "Standard day";
       }
     } else {
-      // REPORTING MODE
       let s2_mins = getDiff(t_s2s, t_s2e);
       let totalGross = s1_mins + s2_mins;
       if(totalGross === 0) {
-        // Reset state
         document.getElementById('heroLabel').innerText = "Waiting...";
         document.getElementById('heroValue').innerText = "--:--";
         document.getElementById('heroValue').style.color = "var(--accent)";
         document.getElementById('heroSub').innerText = "Enter start time";
         return;
       }
-
       let paidHours = (totalGross - deduction) / 60;
       let dailyDiff = paidHours - target;
       
@@ -389,10 +504,9 @@
     }
   }
 
-  /* --- NEW CLEAR FUNCTION --- */
   function clearDailyInputs() {
     ['s1_start','s1_end','s2_start','s2_end'].forEach(id => document.getElementById(id).value = '');
-    calcTime(); // Reset calculation
+    calcTime();
   }
 
   /* --- VACATION PLANNER LOGIC --- */
@@ -425,7 +539,6 @@
 
   function vp_Init() {
     if(!vp.holidays.length) { vp_FillBW([2025,2026,2027]); vp_Save(); }
-    
     document.getElementById('vpTotalInput').value = vp.totalDays;
     ['vpTotalInput','vpExWeekends','vpExHolidays','vpHalfDays'].forEach(id=>{
       document.getElementById(id).addEventListener('change', vp_Save);
@@ -484,7 +597,6 @@
         </div>`;
       el.appendChild(div);
     });
-    
     const rem = vp.totalDays - used;
     document.getElementById('vpUsed').innerText = used;
     document.getElementById('vpRemain').innerText = rem;
@@ -517,14 +629,12 @@
     input.value = '';
   }
 
-  /* --- CALENDAR ENGINE --- */
+  /* --- CALENDAR --- */
   let selStart = null;
-
   function renderCalendar() {
     const year = parseInt(document.getElementById('calYearSelect').value);
     const grid = document.getElementById('calGrid'); grid.innerHTML = '';
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    
     const tripSet = new Set();
     vp.blocks.forEach(b => {
       if(!b.start||!b.end) return;
@@ -536,7 +646,6 @@
       const card = document.createElement('div'); card.className='cal-month';
       card.innerHTML = `<div class="cal-month-name">${months[m]}</div>`;
       const daysDiv = document.createElement('div'); daysDiv.className='cal-days';
-      
       const date = new Date(year, m, 1);
       const startPad = (date.getDay()+6)%7; 
       for(let i=0; i<startPad; i++) daysDiv.appendChild(document.createElement('div'));
@@ -557,12 +666,10 @@
         else if(isHol) dayDiv.classList.add('d-hol');
         else if(isWknd) dayDiv.classList.add('d-wknd');
 
-        // Bridge Logic
         if(!isWknd && !isHol && !isTrip) {
            const y = new Date(date); y.setDate(y.getDate()-1);
            const t = new Date(date); t.setDate(t.getDate()+1);
            const yStr = safeFmt(y), tStr = safeFmt(t);
-           
            const yFree = (y.getDay()===0||y.getDay()===6)||vp.holidays.includes(yStr)||tripSet.has(yStr);
            const tFree = (t.getDay()===0||t.getDay()===6)||vp.holidays.includes(tStr)||tripSet.has(tStr);
            if(yFree && tFree) dayDiv.classList.add('d-bridge');
@@ -582,7 +689,6 @@
     let s = selStart, e = dStr;
     if(new Date(e) < new Date(s)) { [s,e] = [e,s]; }
     selStart = null; renderCalendar();
-    
     document.getElementById('displayStart').innerText = s;
     document.getElementById('displayEnd').innerText = e;
     document.getElementById('modalStart').value = s;
@@ -606,7 +712,6 @@
     updateYearProgress();
     getExtras();
   }
-
   function updateVacationWidget() {
     const today = new Date(); today.setHours(0,0,0,0);
     const next = vp.blocks.filter(b=>new Date(b.start)>=today).sort((a,b)=>new Date(a.start)-new Date(b.start))[0];
@@ -616,7 +721,6 @@
        el.innerHTML = `<strong>${next.title}</strong><br>in <span style="color:var(--accent)">${days} days</span>`;
     } else { el.innerHTML = "No upcoming trips.<br>Time to plan!"; }
   }
-
   function updateKW() {
     const date = new Date(); date.setHours(0,0,0,0);
     date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
@@ -624,7 +728,6 @@
     const kw = 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
     document.getElementById('kwWidget').innerHTML = `<strong>KW ${kw}</strong><br>Calendar Week`;
   }
-
   function updateYearProgress() {
     const now = new Date();
     const start = new Date(now.getFullYear(), 0, 1);
@@ -633,7 +736,6 @@
     document.getElementById('yearPercent').innerText = pct.toFixed(1) + "%";
     document.getElementById('yearBar').style.width = pct + "%";
   }
-
   function getExtras() {
     const facts = ["Octopuses have 3 hearts.", "Honey never spoils.", "Wombats have cube poop.", "Bananas are berries.", "Venus spins clockwise."];
     document.getElementById('funFact').innerHTML = facts[Math.floor(Math.random()*facts.length)];
